@@ -74,7 +74,7 @@
             this.pl_BeginOver.Name = "pl_BeginOver";
             this.pl_BeginOver.Size = new System.Drawing.Size(133, 45);
             this.pl_BeginOver.TabIndex = 2;
-            this.pl_BeginOver.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pl_BeginOver_MouseClick);
+            this.pl_BeginOver.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lb_BeingOver_MouseClick);
             // 
             // lb_BeingOver
             // 
@@ -117,7 +117,7 @@
             this.lb_Time.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.lb_Time.Font = new System.Drawing.Font("微軟正黑體", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lb_Time.ForeColor = System.Drawing.Color.White;
-            this.lb_Time.Location = new System.Drawing.Point(14, 60);
+            this.lb_Time.Location = new System.Drawing.Point(42, 79);
             this.lb_Time.Name = "lb_Time";
             this.lb_Time.Size = new System.Drawing.Size(125, 35);
             this.lb_Time.TabIndex = 3;
@@ -130,9 +130,9 @@
             this.pl_CenterCircle.BackgroundImage = global::AudioServerBeta.Properties.Resources.jtjht_03;
             this.pl_CenterCircle.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pl_CenterCircle.Controls.Add(this.lb_Time);
-            this.pl_CenterCircle.Location = new System.Drawing.Point(247, 52);
+            this.pl_CenterCircle.Location = new System.Drawing.Point(217, 28);
             this.pl_CenterCircle.Name = "pl_CenterCircle";
-            this.pl_CenterCircle.Size = new System.Drawing.Size(150, 150);
+            this.pl_CenterCircle.Size = new System.Drawing.Size(208, 190);
             this.pl_CenterCircle.TabIndex = 4;
             // 
             // AudioServerBetaDemo
@@ -150,7 +150,6 @@
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "AudioServerBetaDemo";
-            this.Text = "AudioClientDemo";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.AudioServerBetaDemo_MouseDown);
             this.MouseLeave += new System.EventHandler(this.AudioServerBetaDemo_MouseLeave);

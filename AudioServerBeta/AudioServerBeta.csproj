@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NAudio">
+      <HintPath>..\packages\NAudio.1.8.2\lib\net35\NAudio.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -52,8 +55,19 @@
     <Compile Include="AudioServerBetaDemo.Designer.cs">
       <DependentUpon>AudioServerBetaDemo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Delegates.cs" />
+    <Compile Include="Events.cs" />
+    <Compile Include="g711audio.cs" />
+    <Compile Include="objects.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SendVolumeLevel.cs" />
+    <Compile Include="Server\HTTPRequest.cs" />
+    <Compile Include="Server\RestartableStream.cs" />
+    <Compile Include="Sources\Audio\AudioEvents.cs" />
+    <Compile Include="Sources\Audio\IAudioSource.cs" />
+    <Compile Include="Sources\Audio\streams\iSpyServerStream.cs" />
+    <Compile Include="Sources\PlayEvents.cs" />
     <EmbeddedResource Include="AudioServerBetaDemo.resx">
       <DependentUpon>AudioServerBetaDemo.cs</DependentUpon>
     </EmbeddedResource>
