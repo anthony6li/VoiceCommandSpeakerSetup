@@ -134,6 +134,7 @@ namespace AudioServerBeta
                 isBegin = false;
                 speakTime.Stop();
                 sw.Stop();
+                sw.Reset();
                 SetLB(string.Format("00:00:00"));
             }
         }
@@ -156,8 +157,8 @@ namespace AudioServerBeta
                 isBegin = false;
                 speakTime.Stop();
                 sw.Stop();
-                SetLB(string.Format("{0}:{1}:{2}", 0, 0, 0));
-                count = 0;
+                sw.Reset();
+                SetLB(string.Format("00:00:00"));
             }
         }
         #endregion
