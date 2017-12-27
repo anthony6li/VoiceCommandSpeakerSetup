@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>AudioClient.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="NAudio">
       <HintPath>..\packages\NAudio.1.8.2\lib\net35\NAudio.dll</HintPath>
@@ -58,6 +61,7 @@
     <Compile Include="Delegates.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="g711audio.cs" />
+    <Compile Include="HotKey.cs" />
     <Compile Include="objects.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,7 +70,6 @@
     <Compile Include="Server\RestartableStream.cs" />
     <Compile Include="Sources\Audio\AudioEvents.cs" />
     <Compile Include="Sources\Audio\IAudioSource.cs" />
-    <Compile Include="Sources\Audio\streams\iSpyServerStream.cs" />
     <Compile Include="Sources\PlayEvents.cs" />
     <EmbeddedResource Include="AudioServerBetaDemo.resx">
       <DependentUpon>AudioServerBetaDemo.cs</DependentUpon>
@@ -111,6 +114,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\yhtfj_02.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sources\Audio\streams\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AudioClient.ico" />
+    <None Include="Resources\AudioClient.ico" />
+    <Content Include="未标题-1.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

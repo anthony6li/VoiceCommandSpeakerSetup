@@ -1,6 +1,5 @@
 ﻿using AudioServerBeta.Sources;
 using AudioServerBeta.Sources.Audio;
-using AudioServerBeta.Sources.Audio.streams;
 using g711audio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -13,24 +12,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Web;
+using System.Windows.Forms;
 
 namespace AudioServerBeta
 {
     public class SendVolumeLevel
     {
-        public AudioServerBetaDemo ParentForm;
         private int audioMode = 0;
         public objectsMicrophone Micobject;
         private WaveIn _waveIn;
+        private int _sampleRate = 8000;
+        private int _bitsPerSample = 16;
+        private int _channels = 1;
+        public IAudioSource AudioSource;
+        public IWavePlayer WaveOut;
         private WaveInProvider _waveProvider;
         private MeteringSampleProvider _meteringProvider;
         private SampleChannel _sampleChannel;
-        public IAudioSource AudioSource;
-        public IWavePlayer WaveOut;
-        private readonly object _lockobject = new object();
-        public List<HttpRequest> OutSockets = new List<HttpRequest>();
-        public event Delegates.NewDataAvailable DataAvailable;
-        public event EventHandler AudioDeviceEnabled, AudioDeviceDisabled, AudioDeviceReConnected;
+        Socket client;
+        IPEndPoint ipep;
 
         private WaveFormat _recordingFormat;
 
@@ -89,38 +89,59 @@ namespace AudioServerBeta
             }
         }
 
-        public SendVolumeLevel(objectsMicrophone om, int mode, AudioServerBetaDemo form)
+        public SendVolumeLevel(objectsMicrophone om)
         {
             Micobject = om;
-            audioMode = mode;
-            ParentForm = form;
         }
 
         public void Enable()
         {
-            if (audioMode == 0)
+            try
             {
-                AudioSource = new iSpyServerStream(Micobject.settings.sourcename)
-                { RecordingFormat = new WaveFormat(8000, 16, 1) };
-                if (AudioSource != null)
-                {
-                    WaveOut = !string.IsNullOrEmpty(Micobject.settings.deviceout)
-                        ? new DirectSoundOut(new Guid(Micobject.settings.deviceout), 100)
-                        : new DirectSoundOut(100);
-                    AudioSource.AudioFinished -= AudioDeviceAudioFinished;
-                    AudioSource.DataAvailable -= AudioDeviceDataAvailable;
+                ipep = new IPEndPoint(IPAddress.Parse(Micobject.settings.sourcename), 8092);
+                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                client.Connect(ipep);
+            }
+            catch (SocketException se)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            try
+            {
+                _sampleRate = Micobject.settings.samples;
+                _bitsPerSample = Micobject.settings.bits;
+                _channels = Micobject.settings.channels;
 
-                    AudioSource.AudioFinished += AudioDeviceAudioFinished;
-                    AudioSource.DataAvailable += AudioDeviceDataAvailable;
-                }
+                RecordingFormat = new WaveFormat(_sampleRate, _bitsPerSample, _channels);
 
-                if (!AudioSource.IsRunning)
-                {
-                    lock (_lockobject)
-                    {
-                        AudioSource.Start();
-                    }
-                }
+
+                _waveIn = new WaveIn { BufferMilliseconds = 40, DeviceNumber = 0, WaveFormat = RecordingFormat };
+                _waveIn.DataAvailable += WaveInDataAvailable;
+                _waveIn.RecordingStopped += WaveInRecordingStopped;
+
+                _waveProvider = new WaveInProvider(_waveIn);
+                _sampleChannel = new SampleChannel(_waveProvider);
+
+                _meteringProvider = new MeteringSampleProvider(_sampleChannel);
+                //_meteringProvider.StreamVolume += _meteringProvider_StreamVolume;
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            try
+            {
+                _waveIn.StartRecording();
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 
@@ -132,7 +153,19 @@ namespace AudioServerBeta
                 _meteringProvider.Read(sampleBuffer, 0, e.BytesRecorded);
 
                 var enc = new byte[e.Buffer.Length / 2];
-                ALawEncoder.ALawEncode(e.Buffer, enc);
+                //可以控制是否对语音进行编码，编码之后Client才可以播放出声音
+                if (AudioServerBetaDemo.ifF2PressProsessing)
+                {
+                    ALawEncoder.ALawEncode(e.Buffer, enc);
+                }
+                try
+                {
+                    SendVarData(client, enc);
+                }
+                catch (SocketException se)
+                {
+                    MessageBox.Show(se.Message);
+                }
 
 
                 //if (mySocket.Connected)
@@ -176,94 +209,76 @@ namespace AudioServerBeta
             return false;
         }
 
-        public void AudioDeviceAudioFinished(object sender, PlayingFinishedEventArgs e)
-        {
-            switch (e.ReasonToFinishPlaying)
-            {
-                case ReasonToFinishPlaying.DeviceLost:
-                case ReasonToFinishPlaying.EndOfStreamReached:
-                case ReasonToFinishPlaying.VideoSourceError:
-                case ReasonToFinishPlaying.StoppedByUser:
-                    Disable(false);
-                    break;
-            }
-        }
-
-        public void Disable(bool stopSource = true)
+        public void Disable()
         {
             try
             {
-
-                if (AudioSource != null)
+                if (_waveIn != null)
                 {
-                    AudioSource.AudioFinished -= AudioDeviceAudioFinished;
-                    AudioSource.DataAvailable -= AudioDeviceDataAvailable;
-
-                    //if (!IsClone)
-                    //{
-                        if (stopSource)
-                        {
-                            AudioSource.Stop();
-                            Thread.Sleep(250);
-                        }
-                    //}
-                    //else
-                    //{
-                    //    int imic;
-                    //    if (Int32.TryParse(Micobject.settings.sourcename, out imic))
-                    //    {
-
-                    //        //var vl = MainForm.InstanceReference.GetVolumeLevel(imic);
-                    //        var vl = this;
-                    //        if (vl != null)
-                    //        {
-                    //            vl.AudioDeviceDisabled -= MicrophoneDisabled;
-                    //            vl.AudioDeviceEnabled -= MicrophoneEnabled;
-                    //            vl.AudioDeviceReConnected -= MicrophoneReconnected;
-                    //        }
-                    //    }
-                    //}
-
+                    try
+                    {
+                        _waveIn.StopRecording();
+                    }
+                    catch
+                    {
+                    }
                 }
-                
-                Listening = false;
-                //UpdateFloorplans(false);
-                Micobject.settings.active = false;
-
-                AudioDeviceDisabled?.Invoke(this, EventArgs.Empty);
+                if (client != null)
+                {
+                    client.Close();
+                    client = null;
+                }
             }
             catch (Exception ex)
             {
             }
         }
 
-        public void AudioDeviceDataAvailable(object sender, DataAvailableEventArgs e)
+        private void SendVolume()
         {
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Parse(Micobject.settings.sourcename), 8092);
+            Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                if (Micobject.settings.needsupdate)
+                client.Connect(ipep);
+                for (int i = 0; i < 1000; i++)
                 {
-                    Micobject.settings.samples = AudioSource.RecordingFormat.SampleRate;
-                    Micobject.settings.channels = AudioSource.RecordingFormat.Channels;
-                    Micobject.settings.needsupdate = false;
+                    byte[] dataSize = new byte[3200];
+                    dataSize = Enumerable.Repeat((byte)i, 3200).ToArray();
+                    SendVarData(client, dataSize);
                 }
-
-                OutSockets.RemoveAll(p => p.TcpClient.Client.Connected == false);
-                if (OutSockets.Count > 0)
-                {
-                   
-
-                    byte[] bSrc = e.RawData;
-                    int totBytes = bSrc.Length;
-
-                    var bterm = Encoding.ASCII.GetBytes("\r\n");
-                }
-
-                DataAvailable?.Invoke(this, new NewDataAvailableArgs((byte[])e.RawData.Clone()));
+            }
+            catch (SocketException se)
+            {
 
             }
-            catch (Exception ex)
+        }
+        public int SendVarData(Socket s, byte[] data)
+        {
+            int total = 0;
+            int size = data.Length;
+            int dataleft = size;
+            int sent;
+            byte[] datasize = new byte[4];
+
+            try
             {
+                datasize = BitConverter.GetBytes(size);
+                sent = s.Send(datasize);
+
+                while (total < size)
+                {
+                    sent = s.Send(data, total, dataleft, SocketFlags.None);
+                    total += sent;
+                    dataleft -= sent;
+                }
+
+                return total;
+            }
+            catch
+            {
+                return 3;
+
             }
         }
     }

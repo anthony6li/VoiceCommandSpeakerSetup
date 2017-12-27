@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AudioServerBetaDemo));
             this.btn_min = new System.Windows.Forms.Button();
             this.btn_closeForm = new System.Windows.Forms.Button();
             this.pl_BeginOver = new System.Windows.Forms.Panel();
@@ -70,20 +71,20 @@
             this.pl_BeginOver.BackColor = System.Drawing.SystemColors.Control;
             this.pl_BeginOver.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pl_BeginOver.Controls.Add(this.lb_BeingOver);
-            this.pl_BeginOver.Location = new System.Drawing.Point(189, 224);
+            this.pl_BeginOver.Location = new System.Drawing.Point(175, 232);
             this.pl_BeginOver.Name = "pl_BeginOver";
-            this.pl_BeginOver.Size = new System.Drawing.Size(133, 45);
+            this.pl_BeginOver.Size = new System.Drawing.Size(140, 40);
             this.pl_BeginOver.TabIndex = 2;
             this.pl_BeginOver.MouseClick += new System.Windows.Forms.MouseEventHandler(this.lb_BeingOver_MouseClick);
             // 
             // lb_BeingOver
             // 
             this.lb_BeingOver.AutoSize = true;
-            this.lb_BeingOver.Font = new System.Drawing.Font("微软雅黑", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lb_BeingOver.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lb_BeingOver.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.lb_BeingOver.Location = new System.Drawing.Point(35, 6);
+            this.lb_BeingOver.Location = new System.Drawing.Point(45, 5);
             this.lb_BeingOver.Name = "lb_BeingOver";
-            this.lb_BeingOver.Size = new System.Drawing.Size(62, 31);
+            this.lb_BeingOver.Size = new System.Drawing.Size(52, 27);
             this.lb_BeingOver.TabIndex = 0;
             this.lb_BeingOver.Text = "开始";
             this.lb_BeingOver.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -94,21 +95,22 @@
             this.pl_TalkF2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pl_TalkF2.Controls.Add(this.lb_TalkF2);
             this.pl_TalkF2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.pl_TalkF2.Location = new System.Drawing.Point(321, 224);
+            this.pl_TalkF2.Location = new System.Drawing.Point(314, 232);
             this.pl_TalkF2.Name = "pl_TalkF2";
-            this.pl_TalkF2.Size = new System.Drawing.Size(133, 45);
+            this.pl_TalkF2.Size = new System.Drawing.Size(140, 40);
             this.pl_TalkF2.TabIndex = 2;
             // 
             // lb_TalkF2
             // 
             this.lb_TalkF2.AutoSize = true;
-            this.lb_TalkF2.Font = new System.Drawing.Font("微软雅黑", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lb_TalkF2.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lb_TalkF2.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.lb_TalkF2.Location = new System.Drawing.Point(24, 5);
+            this.lb_TalkF2.Location = new System.Drawing.Point(2, 5);
             this.lb_TalkF2.Name = "lb_TalkF2";
-            this.lb_TalkF2.Size = new System.Drawing.Size(89, 31);
+            this.lb_TalkF2.Size = new System.Drawing.Size(135, 27);
             this.lb_TalkF2.TabIndex = 0;
-            this.lb_TalkF2.Text = "F2发言";
+            this.lb_TalkF2.Text = "按下F2键发言";
+            this.lb_TalkF2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lb_Time
             // 
@@ -149,7 +151,10 @@
             this.Controls.Add(this.btn_min);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AudioServerBetaDemo";
+            this.Text = "语音指挥";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AudioServerBetaDemo_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.AudioServerBetaDemo_MouseDown);
             this.MouseLeave += new System.EventHandler(this.AudioServerBetaDemo_MouseLeave);
