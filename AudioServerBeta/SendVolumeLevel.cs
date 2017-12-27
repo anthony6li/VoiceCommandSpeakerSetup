@@ -234,25 +234,6 @@ namespace AudioServerBeta
             }
         }
 
-        private void SendVolume()
-        {
-            IPEndPoint ipep = new IPEndPoint(IPAddress.Parse(Micobject.settings.sourcename), 8092);
-            Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try
-            {
-                client.Connect(ipep);
-                for (int i = 0; i < 1000; i++)
-                {
-                    byte[] dataSize = new byte[3200];
-                    dataSize = Enumerable.Repeat((byte)i, 3200).ToArray();
-                    SendVarData(client, dataSize);
-                }
-            }
-            catch (SocketException se)
-            {
-
-            }
-        }
         public int SendVarData(Socket s, byte[] data)
         {
             int total = 0;

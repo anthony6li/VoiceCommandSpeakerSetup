@@ -62,12 +62,12 @@ namespace AudioServerBeta
                 clientIP = aa[0].Split(':')[1];
                 if (!Regex.IsMatch(clientIP, regIP))
                 {
-                    clientIP = "10.10.36.28";
+                    clientIP = string.Empty;
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                clientIP = string.Empty;
             }
             InitializeComponent();
         }
@@ -184,6 +184,7 @@ namespace AudioServerBeta
         private void AudioServerBetaDemo_FormClosing(object sender, FormClosingEventArgs e)
         {
             HotKey.UnregisterHotKey(Handle, 100);
+            Application.Exit();
         }
 
         #region 计时器功能   
