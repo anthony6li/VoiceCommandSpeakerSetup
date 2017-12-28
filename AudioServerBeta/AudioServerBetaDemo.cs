@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Drawing;
 
 namespace AudioServerBeta
 {
@@ -55,8 +56,24 @@ namespace AudioServerBeta
 
         public AudioServerBetaDemo(string[] args)
         {
+            //Form运行在屏幕右下角逻辑
+            int x = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Size.Width - this.Width * 2 - 35;
+            int y = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Size.Height - this.Height;
+            Point p = new Point(x, y);
+            this.PointToScreen(p);
+            this.Location = p;
+
             try
             {
+                if (args.Count() == 0)
+                {
+                    string IOFREX_Msg = "未指定目的端IP，程序无法正常运行";
+                    throw new IndexOutOfRangeException(IOFREX_Msg);
+                }
+                else
+                {
+                    
+                }
                 string regIP = @"^(?:(?:1[0-9][0-9]\.)|(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5])|(?:[1-9][0-9])|(?:[0-9]))$";
                 string[] aa = args[0].Substring(args[0].IndexOf("//", StringComparison.Ordinal)).TrimEnd('”').Trim('/').Trim('"').Trim('?').Split('&');
                 clientIP = aa[0].Split(':')[1];
@@ -64,6 +81,12 @@ namespace AudioServerBeta
                 {
                     clientIP = string.Empty;
                 }
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+                Environment.Exit(0);
+                this.Close();
             }
             catch (Exception e)
             {
@@ -184,6 +207,11 @@ namespace AudioServerBeta
         private void AudioServerBetaDemo_FormClosing(object sender, FormClosingEventArgs e)
         {
             HotKey.UnregisterHotKey(Handle, 100);
+            if (MicVolumeLevel != null)
+            {
+                //断开语音传输
+                MicVolumeLevel.Disable();
+            }
             Application.Exit();
         }
 
@@ -331,8 +359,6 @@ namespace AudioServerBeta
             try
             {
                 UpdateBeginButton(isBegin);
-                //string str = "192.168.198.1";
-                //string str = "10.10.36.28";
                 if (!isBegin)
                 {
                     isBegin = true;
@@ -359,11 +385,11 @@ namespace AudioServerBeta
             }
             catch (SocketException se)
             {
-                MessageBox.Show(se.Message);
+                //MessageBox.Show(se.Message);
             }
             catch (Exception be)
             {
-                MessageBox.Show(be.Message);
+                //MessageBox.Show(be.Message);
             }
         }
 

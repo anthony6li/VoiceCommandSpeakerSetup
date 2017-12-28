@@ -225,6 +225,7 @@ namespace AudioServerBeta
                 }
                 if (client != null)
                 {
+                    client.Shutdown(SocketShutdown.Both);
                     client.Close();
                     client = null;
                 }
