@@ -72,7 +72,7 @@ namespace AudioServerBeta
                 }
                 else
                 {
-                    
+
                 }
                 string regIP = @"^(?:(?:1[0-9][0-9]\.)|(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5])|(?:[1-9][0-9])|(?:[0-9]))$";
                 string[] aa = args[0].Substring(args[0].IndexOf("//", StringComparison.Ordinal)).TrimEnd('”').Trim('/').Trim('"').Trim('?').Split('&');
@@ -207,6 +207,14 @@ namespace AudioServerBeta
         private void AudioServerBetaDemo_FormClosing(object sender, FormClosingEventArgs e)
         {
             HotKey.UnregisterHotKey(Handle, 100);
+            if (speakTime != null)
+            {
+                speakTime.Stop();
+            }
+            if (sw != null)
+            {
+                sw.Stop();
+            }
             if (MicVolumeLevel != null)
             {
                 //断开语音传输
@@ -372,6 +380,10 @@ namespace AudioServerBeta
                         MicVolumeLevel.AudioMode = 0;
                         MicVolumeLevel.Enable();
                     }
+
+                    speakTime.Elapsed += SpeakTime_Elapsed;
+                    sw.Start();
+                    speakTime.Start();
                 }
                 else
                 {
@@ -381,15 +393,19 @@ namespace AudioServerBeta
                         //断开语音传输
                         MicVolumeLevel.Disable();
                     }
+
+                    speakTime.Stop();
+                    sw.Stop();
+                    sw.Reset();
                 }
             }
             catch (SocketException se)
             {
-                //MessageBox.Show(se.Message);
+                //log            
             }
             catch (Exception be)
             {
-                //MessageBox.Show(be.Message);
+                //log            
             }
         }
 
@@ -402,24 +418,18 @@ namespace AudioServerBeta
                     this.pl_BeginOver.BackColor = System.Drawing.SystemColors.MenuHighlight;
                     this.lb_BeingOver.ForeColor = System.Drawing.Color.White;
                     this.lb_BeingOver.Text = "结束";
-                    speakTime.Elapsed += SpeakTime_Elapsed;
-                    sw.Start();
-                    speakTime.Start();
                 }
                 else
                 {
                     this.pl_BeginOver.BackColor = System.Drawing.SystemColors.Control;
                     this.lb_BeingOver.ForeColor = System.Drawing.SystemColors.HotTrack;
                     this.lb_BeingOver.Text = "开始";
-                    speakTime.Stop();
-                    sw.Stop();
-                    sw.Reset();
                     SetLB(string.Format("00:00:00"));
                 }
             }
             catch (Exception ubb)
             {
-                MessageBox.Show(ubb.Message);
+                //log
             }
 
         }
