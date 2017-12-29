@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Anthony.Logger;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Anthony.Logger;
 
 namespace AudioClient
 {
@@ -14,16 +14,10 @@ namespace AudioClient
     {
         public const string EXENAME = "AudioClientBeta.exe";
         private static ARLogger logger = ARLogger.GetInstance(MethodBase.GetCurrentMethod().DeclaringType);
-
         static void Main(string[] args)
         {
             try
             {
-                //while (!File.Exists("a"))
-                //{
-                //    string a = "";
-                //}
-                //} 
                 if (args.Count() > 0)
                 {
                     if (!string.IsNullOrEmpty(args[0]))
@@ -35,7 +29,7 @@ namespace AudioClient
                 {
                     logger.Info(string.Format("前台调用AudioClient，无参数"));
                 }
-                    string argument = string.Empty;
+                string argument = string.Empty;
                 //获取文件名无后缀
                 string processName = Path.GetFileNameWithoutExtension(EXENAME);
                 ProcessStartInfo psi = new ProcessStartInfo();
@@ -55,7 +49,7 @@ namespace AudioClient
                 #endregion
 
                 #region 判断是否传递了参数，若无参数不运行
-                if (args.Count() >0)
+                if (args.Count() > 0)
                 {
                     if (!string.IsNullOrEmpty(args[0]))
                     {
@@ -68,7 +62,7 @@ namespace AudioClient
             }
             catch (Exception ex)
             {
-                logger.Error("指挥端启动失败.{0}",ex.Message);
+                logger.Error("指挥端启动失败.{0}", ex.Message);
                 Console.ReadKey();
             }
         }
