@@ -1966,14 +1966,6 @@ public partial class objectsMicrophoneSettings {
 
     private int orderField;
 
-    private string accessgroupsField;
-
-    private int timeoutField;
-
-    private int analyzedurationField;
-
-    private int directoryIndexField;
-
     private int reconnectintervalField;
 
     private bool needsupdateField;
@@ -1985,10 +1977,6 @@ public partial class objectsMicrophoneSettings {
         this.gainField = ((float)(1F));
         this.messagingField = true;
         this.orderField = -1;
-        this.accessgroupsField = "";
-        this.timeoutField = 8000;
-        this.analyzedurationField = 2000;
-        this.directoryIndexField = 0;
     }
 
     /// <remarks/>

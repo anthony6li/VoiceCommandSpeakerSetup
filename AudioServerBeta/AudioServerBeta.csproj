@@ -122,6 +122,12 @@
     <Content Include="AudioClient.ico" />
     <None Include="Resources\AudioClient.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Logger\Anthony.Logger.csproj">
+      <Project>{89181ba5-6d08-43d3-9ae5-7857b9069ca0}</Project>
+      <Name>Anthony.Logger</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

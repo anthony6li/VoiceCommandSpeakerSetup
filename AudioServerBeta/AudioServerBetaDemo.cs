@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Timers;
 using Timer = System.Timers.Timer;
 using System.Diagnostics;
+using System.Reflection;
 using NAudio.Wave;
 using System.Collections.Generic;
 using System.Net;
@@ -12,11 +13,13 @@ using System.Net.Sockets;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Drawing;
+using Anthony.Logger;
 
 namespace AudioServerBeta
 {
     public partial class AudioServerBetaDemo : Form
     {
+        private static ARLogger logger = ARLogger.GetInstance(MethodBase.GetCurrentMethod().DeclaringType);
         bool beginMove = false;
         int currentXPosition;
         int currentYPosition;
@@ -35,8 +38,8 @@ namespace AudioServerBeta
         #region  F2热键处理
         public bool ifF2Press = false;
         public DateTime ifF2PressTime = new DateTime();
+        public DateTime ifF2FirstPressTime = new DateTime();
         public static bool ifF2PressProsessing = false;
-        private Timer _updateTime;
         private Timer checkF2HotKey;
         private delegate void handleF2PressDelegate();
         private delegate void handleF2PressProcessingDelegate();
@@ -84,15 +87,18 @@ namespace AudioServerBeta
             }
             catch (IndexOutOfRangeException ex)
             {
+                logger.Error("程序未接收正确的IP，退出程序。Exception:{0}", ex.Message);
                 System.Diagnostics.Process.GetCurrentProcess().Kill();
                 Environment.Exit(0);
                 this.Close();
             }
             catch (Exception e)
             {
+                logger.Error("程序接收的参数处理异常，参数置空。Exception:{0}", e.Message);
                 clientIP = string.Empty;
             }
             InitializeComponent();
+            logger.Info("程序加载完毕");
         }
 
         private objectsMicrophone AddMicrophone()
@@ -167,6 +173,7 @@ namespace AudioServerBeta
             Mic.notifications.sendsms = false;
 
             Mic.schedule.active = false;
+            logger.Info(string.Format("AddMicrophone Sucessful"));
             return Mic;
         }
 
@@ -174,12 +181,9 @@ namespace AudioServerBeta
         {
             try
             {
-                //设置F2热键的ID为100，注册热键
-                HotKey.RegisterHotKey(Handle, 100, HotKey.KeyModifiers.None, Keys.F2);
                 Mic = AddMicrophone();
 
                 //取得输出设备
-                int i = 0, j = 0;
                 var d = DirectSoundOut.Devices;
                 if (d != null)
                 {
@@ -200,12 +204,13 @@ namespace AudioServerBeta
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                logger.Error(ex.Message);
             }
         }
 
         private void AudioServerBetaDemo_FormClosing(object sender, FormClosingEventArgs e)
         {
+            logger.Info("取消注册系统热键F2键。");
             HotKey.UnregisterHotKey(Handle, 100);
             if (speakTime != null)
             {
@@ -215,12 +220,14 @@ namespace AudioServerBeta
             {
                 sw.Stop();
             }
+            logger.Info("停止计时器。");
             if (MicVolumeLevel != null)
             {
                 //断开语音传输
                 MicVolumeLevel.Disable();
             }
             Application.Exit();
+            logger.Info("程序彻底退出。");
         }
 
         #region 计时器功能   
@@ -249,6 +256,9 @@ namespace AudioServerBeta
                         AudioServerBetaDemo.ifF2PressProsessing = false;
                         UpdateF2Button(false);
                         checkF2HotKey.Stop();
+                        TimeSpan tts = DateTime.Now - ifF2FirstPressTime;
+                        logger.Info("松开F2热键，停止发送语音。更新Button样式为白底蓝字。");
+                        logger.Info("本次按键持续时间为：{0}分{1}秒{2}毫秒。",tts.Minutes,tts.Seconds,tts.Milliseconds);
                     }
                 }
             }
@@ -288,6 +298,8 @@ namespace AudioServerBeta
             if (!checkF2HotKey.Enabled)
             {
                 checkF2HotKey.Start();
+                ifF2FirstPressTime = DateTime.Now;
+                logger.Info("按下F2热键，发送语音流。更新Button样式为蓝底白字。");
             }
         }
 
@@ -313,13 +325,16 @@ namespace AudioServerBeta
         #region 窗体隐藏标题栏后的移动问题,最小化和关闭按钮
         private void btn_min_Click(object sender, EventArgs e)
         {
+            logger.Info("响应最小化按钮操作。");
             this.WindowState = FormWindowState.Minimized;
         }
 
         private void btn_closeForm_Click(object sender, EventArgs e)
         {
+            logger.Info("响应最小化按钮操作。");
             Application.Exit();
         }
+
         private void AudioServerBetaDemo_MouseDown(object sender, MouseEventArgs e)
         {
             //将鼠标坐标赋给窗体左上角坐标  
@@ -369,6 +384,9 @@ namespace AudioServerBeta
                 UpdateBeginButton(isBegin);
                 if (!isBegin)
                 {
+                    //设置F2热键的ID为100，注册热键
+                    logger.Info("注册系统热键F2键。");
+                    HotKey.RegisterHotKey(Handle, 100, HotKey.KeyModifiers.None, Keys.F2);
                     isBegin = true;
                     Mic = AddMicrophone();
                     if (ddlAudioOut.Count > 0 && !string.IsNullOrEmpty(clientIP))
@@ -384,9 +402,12 @@ namespace AudioServerBeta
                     speakTime.Elapsed += SpeakTime_Elapsed;
                     sw.Start();
                     speakTime.Start();
+                    logger.Info("开始指挥！！！计时器开始。");
                 }
                 else
                 {
+                    logger.Info("取消注册系统热键F2键。");
+                    HotKey.UnregisterHotKey(Handle, 100);
                     isBegin = false;
                     if (MicVolumeLevel != null)
                     {
@@ -397,15 +418,16 @@ namespace AudioServerBeta
                     speakTime.Stop();
                     sw.Stop();
                     sw.Reset();
+                    logger.Info("结束指挥！！！计时器停止。");
                 }
             }
             catch (SocketException se)
             {
-                //log            
+                logger.Error("通信出现异常。Exception：{0}", se.Message);
             }
             catch (Exception be)
             {
-                //log            
+                logger.Error("指挥操作出现异常。Exception：{0}", be.Message);
             }
         }
 
@@ -418,6 +440,7 @@ namespace AudioServerBeta
                     this.pl_BeginOver.BackColor = System.Drawing.SystemColors.MenuHighlight;
                     this.lb_BeingOver.ForeColor = System.Drawing.Color.White;
                     this.lb_BeingOver.Text = "结束";
+                    logger.Info("更新开始结束Button样式为蓝底白字。");
                 }
                 else
                 {
@@ -425,11 +448,12 @@ namespace AudioServerBeta
                     this.lb_BeingOver.ForeColor = System.Drawing.SystemColors.HotTrack;
                     this.lb_BeingOver.Text = "开始";
                     SetLB(string.Format("00:00:00"));
+                    logger.Info("更新开始结束Button样式为白底蓝字。");
                 }
             }
             catch (Exception ubb)
             {
-                //log
+                logger.Error("更新开始结束Button样式。", ubb.Message);
             }
 
         }

@@ -13,11 +13,14 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Web;
 using System.Windows.Forms;
+using Anthony.Logger;
+using System.Reflection;
 
 namespace AudioServerBeta
 {
     public class SendVolumeLevel
     {
+        private static ARLogger logger = ARLogger.GetInstance(MethodBase.GetCurrentMethod().DeclaringType);
         private int audioMode = 0;
         public objectsMicrophone Micobject;
         private WaveIn _waveIn;
@@ -56,39 +59,6 @@ namespace AudioServerBeta
             }
         }
 
-        public bool Listening
-        {
-            get
-            {
-                if (WaveOut != null && WaveOut.PlaybackState == PlaybackState.Playing)
-                    return true;
-                return false;
-            }
-            set
-            {
-                if (WaveOut != null)
-                {
-                    if (value && AudioSource != null)
-                    {
-                        //(creates the waveoutprovider referenced below)
-                        AudioSource.Listening = true;
-
-                        WaveOut.Init(AudioSource.WaveOutProvider);
-                        //Setting volume not supported on DirectSoundOut, adjust the volume on your WaveProvider instead
-                        //WaveOut.Volume = 0;
-                        WaveOut.Play();
-
-                    }
-                    else
-                    {
-                        if (AudioSource != null) AudioSource.Listening = false;
-                        WaveOut.Stop();
-
-                    }
-                }
-            }
-        }
-
         public SendVolumeLevel(objectsMicrophone om)
         {
             Micobject = om;
@@ -101,14 +71,15 @@ namespace AudioServerBeta
                 ipep = new IPEndPoint(IPAddress.Parse(Micobject.settings.sourcename), 8092);
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(ipep);
+                logger.Info("与对方服务器{0}通信连接成功。",Micobject.settings.sourcename);
             }
             catch (SocketException se)
             {
-                throw;
+                logger.Error("Socket异常:",se.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                logger.Error("通信异常",ex.Message);
             }
             try
             {
@@ -130,18 +101,19 @@ namespace AudioServerBeta
                 //_meteringProvider.StreamVolume += _meteringProvider_StreamVolume;
 
             }
-            catch (Exception)
+            catch (Exception exc)
             {
-                throw;
+                logger.Error(exc.Message); 
             }
 
             try
             {
                 _waveIn.StartRecording();
+                logger.Info("开始接收语音信号。");
             }
             catch (Exception ex)
             {
-                throw;
+                logger.Error(ex.Message);
             }
         }
 
@@ -164,14 +136,8 @@ namespace AudioServerBeta
                 }
                 catch (SocketException se)
                 {
-                    MessageBox.Show(se.Message);
+                    logger.Error("发送语音流出现异常。Exception:{0}",se.Message);
                 }
-
-
-                //if (mySocket.Connected)
-                //{
-                //    SendToBrowser(enc, mySocket);
-                //}
             }
         }
 
@@ -185,30 +151,6 @@ namespace AudioServerBeta
             }
         }
 
-        private bool SendToBrowser(Byte[] bSendData, Socket socket)
-        {
-            try
-            {
-                if (socket.Connected)
-                {
-                    int sent = socket.Send(bSendData);
-                    if (sent < bSendData.Length)
-                    {
-                        //Debug.WriteLine("Only sent " + sent + " of " + bSendData.Length);
-                    }
-                    if (sent == -1)
-                        return false;
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                //Debug.WriteLine("Send To Browser Error: " + e.Message);
-                //MainForm.LogExceptionToFile(e);
-            }
-            return false;
-        }
-
         public void Disable()
         {
             try
@@ -218,13 +160,16 @@ namespace AudioServerBeta
                     try
                     {
                         _waveIn.StopRecording();
+                        logger.Info("关闭语音接收。");
                     }
-                    catch
+                    catch(Exception exc)
                     {
+                        logger.Info("关闭语音接收出现异常。Exception：{0}",exc.Message);
                     }
                 }
                 if (client != null)
                 {
+                    logger.Info("关闭语音接收Socket套接字。");
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
                     client = null;
@@ -232,6 +177,7 @@ namespace AudioServerBeta
             }
             catch (Exception ex)
             {
+                logger.Error("Disable 异常：{0}",ex.Message);
             }
         }
 
