@@ -23,7 +23,7 @@ namespace AudioServerBeta
         private static ARLogger logger = ARLogger.GetInstance(MethodBase.GetCurrentMethod().DeclaringType);
         private int audioMode = 0;
         public objectsMicrophone Micobject;
-        private WaveIn _waveIn;
+        private WaveInEvent _waveIn;
         private int _sampleRate = 8000;
         private int _bitsPerSample = 16;
         private int _channels = 1;
@@ -75,7 +75,8 @@ namespace AudioServerBeta
             }
             catch (SocketException se)
             {
-                logger.Error("Socket异常:",se.Message);
+                logger.Error("Socket异常:{0}",se.Message);
+                throw;
             }
             catch (Exception ex)
             {
@@ -90,7 +91,7 @@ namespace AudioServerBeta
                 RecordingFormat = new WaveFormat(_sampleRate, _bitsPerSample, _channels);
 
 
-                _waveIn = new WaveIn { BufferMilliseconds = 40, DeviceNumber = 0, WaveFormat = RecordingFormat };
+                _waveIn = new WaveInEvent { BufferMilliseconds = 40, DeviceNumber = 0, WaveFormat = RecordingFormat };
                 _waveIn.DataAvailable += WaveInDataAvailable;
                 _waveIn.RecordingStopped += WaveInRecordingStopped;
 

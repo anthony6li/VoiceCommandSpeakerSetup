@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using Anthony.Logger;
+using System.Threading;
 
 namespace AudioServerBeta
 {
@@ -24,6 +25,8 @@ namespace AudioServerBeta
         int currentXPosition;
         int currentYPosition;
         bool isBegin = false;
+        private delegate void ChildThreadExceptionHandler(string message);
+        private event ChildThreadExceptionHandler ChildThreadException;
 
         public SendVolumeLevel MicVolumeLevel;
         public objectsMicrophone Mic;
@@ -41,9 +44,8 @@ namespace AudioServerBeta
         public DateTime ifF2FirstPressTime = new DateTime();
         public static bool ifF2PressProsessing = false;
         private Timer checkF2HotKey;
-        private delegate void handleF2PressDelegate();
+        private delegate void handleHotKey(bool isRegisterHotKey);
         private delegate void handleF2PressProcessingDelegate();
-        private delegate void handleRichTextDelegate(string message);
         #endregion
 
         private struct ListItem
@@ -72,10 +74,6 @@ namespace AudioServerBeta
                 {
                     string IOFREX_Msg = "未指定目的端IP，程序无法正常运行";
                     throw new IndexOutOfRangeException(IOFREX_Msg);
-                }
-                else
-                {
-
                 }
                 string regIP = @"^(?:(?:1[0-9][0-9]\.)|(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5])|(?:[1-9][0-9])|(?:[0-9]))$";
                 string[] aa = args[0].Substring(args[0].IndexOf("//", StringComparison.Ordinal)).TrimEnd('”').Trim('/').Trim('"').Trim('?').Split('&');
@@ -177,6 +175,14 @@ namespace AudioServerBeta
             return Mic;
         }
 
+        protected virtual void OnChildThreadException(string message)
+        {
+            if (ChildThreadException != null)
+            {
+                ChildThreadException(message);
+            }
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             try
@@ -198,7 +204,7 @@ namespace AudioServerBeta
                 speakTime.AutoReset = true;
 
                 //用来记录F2按下的时间
-                checkF2HotKey = new Timer(500);
+                checkF2HotKey = new Timer(100);
                 checkF2HotKey.AutoReset = true;
                 checkF2HotKey.Elapsed += CheckF2HotKey_Elapsed;
             }
@@ -259,6 +265,9 @@ namespace AudioServerBeta
                         TimeSpan tts = DateTime.Now - ifF2FirstPressTime;
                         logger.Info("松开F2热键，停止发送语音。更新Button样式为白底蓝字。");
                         logger.Info("本次按键持续时间为：{0}分{1}秒{2}毫秒。",tts.Minutes,tts.Seconds,tts.Milliseconds);
+                        HotKey.UnregisterHotKey(Handle, 100);
+                        UpdateBeginButton(isBegin);
+                        logger.Info("松开F2热键之后，取消注册热键。");
                     }
                 }
             }
@@ -307,6 +316,28 @@ namespace AudioServerBeta
         {
             ts = sw.Elapsed;
             SetLB(string.Format("{0}:{1}:{2}", ts.Hours.ToString("00"), ts.Minutes.ToString("00"), ts.Seconds.ToString("00")));
+        }
+
+        private void SetRegisterHotKey(bool isRegisterHotKey)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new handleHotKey(SetRegisterHotKey), isRegisterHotKey);
+            }
+            else
+            {
+                if (isRegisterHotKey)
+                {
+                    logger.Info("注册系统热键F2键。");
+                    HotKey.RegisterHotKey(Handle, 100, HotKey.KeyModifiers.None, Keys.F2);
+                }
+                else
+                {
+                    HotKey.UnregisterHotKey(Handle, 100);
+                    UpdateBeginButton(isBegin);
+                    logger.Info("松开F2热键之后，取消注册热键。");
+                }
+            }
         }
 
         private void SetLB(string value)
@@ -379,40 +410,46 @@ namespace AudioServerBeta
         /// <param name="e"></param>
         private void lb_BeingOver_MouseClick(object sender, MouseEventArgs e)
         {
+            Thread th = null;
             try
             {
                 UpdateBeginButton(isBegin);
                 if (!isBegin)
                 {
                     //设置F2热键的ID为100，注册热键
-                    logger.Info("注册系统热键F2键。");
-                    HotKey.RegisterHotKey(Handle, 100, HotKey.KeyModifiers.None, Keys.F2);
+                    //logger.Info("注册系统热键F2键。");
+                    //HotKey.RegisterHotKey(Handle, 100, HotKey.KeyModifiers.None, Keys.F2);
                     isBegin = true;
                     Mic = AddMicrophone();
-                    if (ddlAudioOut.Count > 0 && !string.IsNullOrEmpty(clientIP))
-                    {
-                        Mic.settings.sourcename = clientIP;
-                        Mic.settings.active = true;
-                        Mic.settings.deviceout = ((ListItem)ddlAudioOut[0]).Value[0];
-                        MicVolumeLevel = new SendVolumeLevel(Mic);
-                        MicVolumeLevel.AudioMode = 0;
-                        MicVolumeLevel.Enable();
-                    }
+                    //if (ddlAudioOut.Count > 0 && !string.IsNullOrEmpty(clientIP))
+                    //{
+                    //    Mic.settings.sourcename = clientIP;
+                    //    Mic.settings.active = true;
+                    //    Mic.settings.deviceout = ((ListItem)ddlAudioOut[0]).Value[0];
+                    //    MicVolumeLevel = new SendVolumeLevel(Mic);
+                    //    MicVolumeLevel.AudioMode = 0;
+                    //    MicVolumeLevel.Enable();
+                    //}
+                    ChildThreadException = null;
+                    ChildThreadException += new ChildThreadExceptionHandler(Import_ChildThreadException);
+                    th = new Thread(new System.Threading.ThreadStart(MicVolumeLevelEnable));
+                    th.IsBackground = true;
+                    th.Start();
 
-                    speakTime.Elapsed += SpeakTime_Elapsed;
-                    sw.Start();
-                    speakTime.Start();
-                    logger.Info("开始指挥！！！计时器开始。");
                 }
                 else
                 {
-                    logger.Info("取消注册系统热键F2键。");
-                    HotKey.UnregisterHotKey(Handle, 100);
+                    //logger.Info("取消注册系统热键F2键。");
+                    //HotKey.UnregisterHotKey(Handle, 100);
                     isBegin = false;
                     if (MicVolumeLevel != null)
                     {
                         //断开语音传输
                         MicVolumeLevel.Disable();
+                    }
+                    if (th != null)
+                    {
+                        th.Abort();
                     }
 
                     speakTime.Stop();
@@ -421,15 +458,61 @@ namespace AudioServerBeta
                     logger.Info("结束指挥！！！计时器停止。");
                 }
             }
-            catch (SocketException se)
+            catch (SocketException)
             {
-                logger.Error("通信出现异常。Exception：{0}", se.Message);
             }
             catch (Exception be)
             {
                 logger.Error("指挥操作出现异常。Exception：{0}", be.Message);
             }
         }
+
+        private void Import_ChildThreadException(string message)
+        {
+            //lb_BeingOver_MouseClick(new object(),null);
+            UpdateBeginButton(isBegin);
+            if (MicVolumeLevel != null)
+            {
+                //断开语音传输
+                MicVolumeLevel.Disable();
+            }
+            SetLB("00:00:00");
+            speakTime.Stop();
+            sw.Stop();
+            sw.Reset();
+            logger.Info("结束指挥！！！计时器停止。");
+        }
+
+        private void MicVolumeLevelEnable()
+        {
+            try
+            {
+                if (ddlAudioOut.Count > 0 && !string.IsNullOrEmpty(clientIP))
+                {
+                    SetLB("连接中……");
+                    Mic.settings.sourcename = clientIP;
+                    Mic.settings.active = true;
+                    Mic.settings.deviceout = ((ListItem)ddlAudioOut[0]).Value[0];
+                    MicVolumeLevel = new SendVolumeLevel(Mic);
+                    MicVolumeLevel.AudioMode = 0;
+
+                    MicVolumeLevel.Enable();
+                }
+                SetRegisterHotKey(true);
+                speakTime.Elapsed += SpeakTime_Elapsed;
+                sw.Start();
+                speakTime.Start();
+                logger.Info("开始指挥！！！计时器开始。");
+            }
+            catch (SocketException se)
+            {
+                SetRegisterHotKey(false);
+                //SpeakTime_Elapsed(speakTime, new ElapsedEventArgs());
+                OnChildThreadException(se.Message);
+            }
+        }
+
+
 
         private void UpdateBeginButton(bool begin)
         {
