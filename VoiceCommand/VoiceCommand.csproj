@@ -7,8 +7,8 @@
     <ProjectGuid>{9A70BE80-25F6-4497-B807-49273C4B7F84}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AudioClient</RootNamespace>
-    <AssemblyName>AudioClient</AssemblyName>
+    <RootNamespace>VoiceCommand</RootNamespace>
+    <AssemblyName>VoiceCommand</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

@@ -16,9 +16,9 @@ using System.Drawing;
 using Anthony.Logger;
 using System.Threading;
 
-namespace AudioServerBeta
+namespace VoiceCommandSpeaker
 {
-    public partial class AudioServerBetaDemo : Form
+    public partial class FrmVoiceSpeaker : Form
     {
         private static ARLogger logger = ARLogger.GetInstance(MethodBase.GetCurrentMethod().DeclaringType);
         bool beginMove = false;
@@ -59,7 +59,7 @@ namespace AudioServerBeta
             public ListItem(string Name, string[] Value) { this.Name = Name; this.Value = Value; }
         }
 
-        public AudioServerBetaDemo(string[] args)
+        public FrmVoiceSpeaker(string[] args)
         {
             //Form运行在屏幕右下角逻辑
             int x = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Size.Width - this.Width * 2 - 35;
@@ -214,7 +214,7 @@ namespace AudioServerBeta
             }
         }
 
-        private void AudioServerBetaDemo_FormClosing(object sender, FormClosingEventArgs e)
+        private void VoiceCommandSpeakerDemo_FormClosing(object sender, FormClosingEventArgs e)
         {
             logger.Info("取消注册系统热键F2键。");
             HotKey.UnregisterHotKey(Handle, 100);
@@ -254,13 +254,13 @@ namespace AudioServerBeta
             }
             else
             {
-                if (AudioServerBetaDemo.ifF2PressProsessing)
+                if (FrmVoiceSpeaker.ifF2PressProsessing)
                 {
                     TimeSpan ts = DateTime.Now - ifF2PressTime;
                     if (ts.TotalMilliseconds > 500)
                     {
                         logger.Info("本次按键间隔为：{0}分 {1}秒 {2}毫秒。", ts.Minutes, ts.Seconds, ts.Milliseconds);
-                        AudioServerBetaDemo.ifF2PressProsessing = false;
+                        FrmVoiceSpeaker.ifF2PressProsessing = false;
                         //ifF2Press = false;
                         UpdateF2Button(false);
                         checkF2HotKey.Stop();
@@ -301,11 +301,11 @@ namespace AudioServerBeta
         {
             ifF2PressTime = DateTime.Now;
             logger.Warn("触发一次F2！" + ifF2PressTime.ToString());
-            logger.Info(string.Format("AudioServerBetaDemo.ifF2PressProsessing is {0}", AudioServerBetaDemo.ifF2PressProsessing));
-            if (!AudioServerBetaDemo.ifF2PressProsessing)
+            logger.Info(string.Format("VoiceCommandSpeakerDemo.ifF2PressProsessing is {0}", FrmVoiceSpeaker.ifF2PressProsessing));
+            if (!FrmVoiceSpeaker.ifF2PressProsessing)
             {
                 //ifF2Press = true;
-                AudioServerBetaDemo.ifF2PressProsessing = true;
+                FrmVoiceSpeaker.ifF2PressProsessing = true;
                 UpdateF2Button(true);
             }
             if (!checkF2HotKey.Enabled)
@@ -371,7 +371,7 @@ namespace AudioServerBeta
             Application.Exit();
         }
 
-        private void AudioServerBetaDemo_MouseDown(object sender, MouseEventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseDown(object sender, MouseEventArgs e)
         {
             //将鼠标坐标赋给窗体左上角坐标  
             beginMove = true;
@@ -380,7 +380,7 @@ namespace AudioServerBeta
             this.Refresh();
         }
 
-        private void AudioServerBetaDemo_MouseLeave(object sender, EventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseLeave(object sender, EventArgs e)
         {
             //设置初始状态  
             currentXPosition = 0;
@@ -388,7 +388,7 @@ namespace AudioServerBeta
             beginMove = false;
         }
 
-        private void AudioServerBetaDemo_MouseMove(object sender, MouseEventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseMove(object sender, MouseEventArgs e)
         {
             if (beginMove)
             {
@@ -401,7 +401,7 @@ namespace AudioServerBeta
             }
         }
 
-        private void AudioServerBetaDemo_MouseUp(object sender, MouseEventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseUp(object sender, MouseEventArgs e)
         {
             beginMove = false;
         }

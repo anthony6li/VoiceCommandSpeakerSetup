@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace AudioServerBeta
+namespace VoiceCommandSpeaker
 {
     public static class HotKey
     {

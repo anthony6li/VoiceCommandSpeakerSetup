@@ -1,5 +1,5 @@
-﻿using AudioServerBeta.Sources;
-using AudioServerBeta.Sources.Audio;
+﻿using VoiceCommandSpeaker.Sources;
+using VoiceCommandSpeaker.Sources.Audio;
 using g711audio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -16,7 +16,7 @@ using System.Windows.Forms;
 using Anthony.Logger;
 using System.Reflection;
 
-namespace AudioServerBeta
+namespace VoiceCommandSpeaker
 {
     public class SendVolumeLevel
     {
@@ -141,7 +141,7 @@ namespace AudioServerBeta
 
                 var enc = new byte[e.Buffer.Length / 2];
                 //可以控制是否对语音进行编码，编码之后Client才可以播放出声音
-                if (AudioServerBetaDemo.ifF2PressProsessing)
+                if (FrmVoiceSpeaker.ifF2PressProsessing)
                 {
                     ALawEncoder.ALawEncode(e.Buffer, enc);
                 }

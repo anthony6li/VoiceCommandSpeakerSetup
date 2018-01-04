@@ -1,7 +1,7 @@
 ﻿
-using AudioServerBeta;
+using VoiceCommandSpeaker;
 
-namespace AudioServerBeta
+namespace VoiceCommandSpeaker
 {
     public class Delegates
     {

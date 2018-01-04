@@ -1,6 +1,6 @@
 ﻿using NAudio.Wave;
 
-namespace AudioServerBeta.Sources.Audio
+namespace VoiceCommandSpeaker.Sources.Audio
 {
 
     /// <summary>
