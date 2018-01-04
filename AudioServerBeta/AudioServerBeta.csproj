@@ -35,9 +35,8 @@
     <ApplicationIcon>AudioClient.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\AudioClientBeta\Logger\log4net.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.dll</HintPath>
     </Reference>
     <Reference Include="NAudio">
       <HintPath>..\packages\NAudio.1.8.2\lib\net35\NAudio.dll</HintPath>

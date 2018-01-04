@@ -204,7 +204,7 @@ namespace AudioServerBeta
                 speakTime.AutoReset = true;
 
                 //用来记录F2按下的时间
-                checkF2HotKey = new Timer(100);
+                checkF2HotKey = new Timer(500);
                 checkF2HotKey.AutoReset = true;
                 checkF2HotKey.Elapsed += CheckF2HotKey_Elapsed;
             }
@@ -254,19 +254,21 @@ namespace AudioServerBeta
             }
             else
             {
-                if (ifF2Press)
+                if (AudioServerBetaDemo.ifF2PressProsessing)
                 {
                     TimeSpan ts = DateTime.Now - ifF2PressTime;
-                    if (ts.TotalMilliseconds > 100)
+                    if (ts.TotalMilliseconds > 500)
                     {
+                        logger.Info("本次按键间隔为：{0}分 {1}秒 {2}毫秒。", ts.Minutes, ts.Seconds, ts.Milliseconds);
                         AudioServerBetaDemo.ifF2PressProsessing = false;
+                        //ifF2Press = false;
                         UpdateF2Button(false);
                         checkF2HotKey.Stop();
                         TimeSpan tts = DateTime.Now - ifF2FirstPressTime;
                         logger.Info("松开F2热键，停止发送语音。更新Button样式为白底蓝字。");
-                        logger.Info("本次按键持续时间为：{0}分{1}秒{2}毫秒。",tts.Minutes,tts.Seconds,tts.Milliseconds);
+                        logger.Info("本次按键持续时间为：{0}分 {1}秒 {2}毫秒。",tts.Minutes,tts.Seconds,tts.Milliseconds);
                         HotKey.UnregisterHotKey(Handle, 100);
-                        UpdateBeginButton(isBegin);
+                        //UpdateBeginButton(isBegin);
                         logger.Info("松开F2热键之后，取消注册热键。");
                     }
                 }
@@ -297,17 +299,20 @@ namespace AudioServerBeta
         /// </summary>
         private void handleF2PressSetTrue()
         {
-            //if (!ifF2Press)
+            ifF2PressTime = DateTime.Now;
+            logger.Warn("触发一次F2！" + ifF2PressTime.ToString());
+            logger.Info(string.Format("AudioServerBetaDemo.ifF2PressProsessing is {0}", AudioServerBetaDemo.ifF2PressProsessing));
+            if (!AudioServerBetaDemo.ifF2PressProsessing)
             {
-                ifF2Press = true;
+                //ifF2Press = true;
                 AudioServerBetaDemo.ifF2PressProsessing = true;
                 UpdateF2Button(true);
-                ifF2PressTime = DateTime.Now;
             }
             if (!checkF2HotKey.Enabled)
             {
+                logger.Warn("开启F2按下事件的计时器！" + ifF2PressTime.ToString());
                 checkF2HotKey.Start();
-                ifF2FirstPressTime = DateTime.Now;
+                ifF2FirstPressTime = ifF2PressTime;
                 logger.Info("按下F2热键，发送语音流。更新Button样式为蓝底白字。");
             }
         }
@@ -480,7 +485,7 @@ namespace AudioServerBeta
             speakTime.Stop();
             sw.Stop();
             sw.Reset();
-            logger.Info("结束指挥！！！计时器停止。");
+            logger.Info("处理子线程异常！结束指挥！！！计时器停止。");
         }
 
         private void MicVolumeLevelEnable()
@@ -561,7 +566,7 @@ namespace AudioServerBeta
             }
             catch (Exception ufb)
             {
-                MessageBox.Show(ufb.Message);
+                logger.Warn(string.Format("更新F2Button状态出现异常。",ufb.Message) );
             }
         }
         #endregion

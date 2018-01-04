@@ -68,9 +68,10 @@ namespace AudioServerBeta
         {
             try
             {
-                ipep = new IPEndPoint(IPAddress.Parse(Micobject.settings.sourcename), 8092);
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                client.Connect(ipep);
+                ipep = new IPEndPoint(IPAddress.Parse(Micobject.settings.sourcename), 8092);
+                client.BeginConnect(ipep,new AsyncCallback(Connect),client);
+                //client.Connect(ipep);
                 logger.Info("与对方服务器{0}通信连接成功。",Micobject.settings.sourcename);
             }
             catch (SocketException se)
@@ -115,6 +116,19 @@ namespace AudioServerBeta
             catch (Exception ex)
             {
                 logger.Error(ex.Message);
+            }
+        }
+
+        private void Connect(IAsyncResult iar)
+        {
+            Socket client = iar.AsyncState as Socket;
+            try
+            {
+                client.EndConnect(iar);
+            }
+            catch (Exception e)
+            {
+                logger.Info(e.Message);
             }
         }
 
