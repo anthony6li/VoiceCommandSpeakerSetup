@@ -8,11 +8,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AudioClient
+namespace VoiceCommand
 {
     class Program
     {
-        public const string EXENAME = "AudioClientBeta.exe";
+        public const string EXENAME = "VoiceCommandSpeaker.exe";
         private static ARLogger logger = ARLogger.GetInstance(MethodBase.GetCurrentMethod().DeclaringType);
         static void Main(string[] args)
         {

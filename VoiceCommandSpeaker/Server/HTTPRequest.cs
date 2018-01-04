@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace AudioServerBeta
+namespace VoiceCommandSpeaker
 {
     public class HttpRequest
     {

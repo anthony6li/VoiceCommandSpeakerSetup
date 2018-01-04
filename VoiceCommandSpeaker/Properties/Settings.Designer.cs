@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AudioServerBeta.Properties
+namespace VoiceCommandSpeaker.Properties
 {
 
 

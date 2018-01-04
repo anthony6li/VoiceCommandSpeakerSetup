@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace AudioServerBeta
+namespace VoiceCommandSpeaker
 {
     public sealed class RestartableReadStream : Stream
     {

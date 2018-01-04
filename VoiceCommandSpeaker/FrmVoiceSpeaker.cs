@@ -16,9 +16,9 @@ using System.Drawing;
 using Anthony.Logger;
 using System.Threading;
 
-namespace AudioServerBeta
+namespace VoiceCommandSpeaker
 {
-    public partial class AudioServerBetaDemo : Form
+    public partial class FrmVoiceSpeaker : Form
     {
         private static ARLogger logger = ARLogger.GetInstance(MethodBase.GetCurrentMethod().DeclaringType);
         bool beginMove = false;
@@ -59,7 +59,7 @@ namespace AudioServerBeta
             public ListItem(string Name, string[] Value) { this.Name = Name; this.Value = Value; }
         }
 
-        public AudioServerBetaDemo(string[] args)
+        public FrmVoiceSpeaker(string[] args)
         {
             //Form运行在屏幕右下角逻辑
             int x = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Size.Width - this.Width * 2 - 35;
@@ -214,7 +214,7 @@ namespace AudioServerBeta
             }
         }
 
-        private void AudioServerBetaDemo_FormClosing(object sender, FormClosingEventArgs e)
+        private void VoiceCommandSpeakerDemo_FormClosing(object sender, FormClosingEventArgs e)
         {
             logger.Info("取消注册系统热键F2键。");
             HotKey.UnregisterHotKey(Handle, 100);
@@ -259,7 +259,7 @@ namespace AudioServerBeta
                     TimeSpan ts = DateTime.Now - ifF2PressTime;
                     if (ts.TotalMilliseconds > 100)
                     {
-                        AudioServerBetaDemo.ifF2PressProsessing = false;
+                        FrmVoiceSpeaker.ifF2PressProsessing = false;
                         UpdateF2Button(false);
                         checkF2HotKey.Stop();
                         TimeSpan tts = DateTime.Now - ifF2FirstPressTime;
@@ -300,7 +300,7 @@ namespace AudioServerBeta
             //if (!ifF2Press)
             {
                 ifF2Press = true;
-                AudioServerBetaDemo.ifF2PressProsessing = true;
+                FrmVoiceSpeaker.ifF2PressProsessing = true;
                 UpdateF2Button(true);
                 ifF2PressTime = DateTime.Now;
             }
@@ -366,7 +366,7 @@ namespace AudioServerBeta
             Application.Exit();
         }
 
-        private void AudioServerBetaDemo_MouseDown(object sender, MouseEventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseDown(object sender, MouseEventArgs e)
         {
             //将鼠标坐标赋给窗体左上角坐标  
             beginMove = true;
@@ -375,7 +375,7 @@ namespace AudioServerBeta
             this.Refresh();
         }
 
-        private void AudioServerBetaDemo_MouseLeave(object sender, EventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseLeave(object sender, EventArgs e)
         {
             //设置初始状态  
             currentXPosition = 0;
@@ -383,7 +383,7 @@ namespace AudioServerBeta
             beginMove = false;
         }
 
-        private void AudioServerBetaDemo_MouseMove(object sender, MouseEventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseMove(object sender, MouseEventArgs e)
         {
             if (beginMove)
             {
@@ -396,7 +396,7 @@ namespace AudioServerBeta
             }
         }
 
-        private void AudioServerBetaDemo_MouseUp(object sender, MouseEventArgs e)
+        private void VoiceCommandSpeakerDemo_MouseUp(object sender, MouseEventArgs e)
         {
             beginMove = false;
         }
